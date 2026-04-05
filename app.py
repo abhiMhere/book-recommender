@@ -107,6 +107,28 @@ def load_data():
 
 # Yeh line add karo yahan
 books, similarity = load_data()
+
+def search_google_books(query):
+    try:
+        url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=10"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        
+        results = []
+        for item in data.get('items', []):
+            info = item.get('volumeInfo', {})
+            results.append({
+                'title': info.get('title', 'Unknown'),
+                'author': ', '.join(info.get('authors', ['Unknown'])),
+                'image': info.get('imageLinks', {}).get('thumbnail', 
+                         'https://via.placeholder.com/120x180?text=No+Cover'),
+                'year': info.get('publishedDate', 'N/A')[:4],
+                'description': info.get('description', 'No description available.')[:200] + '...',
+                'score': 'Google Books'
+            })
+        return results
+    except:
+        return []
     
     # Gemini Setup
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
