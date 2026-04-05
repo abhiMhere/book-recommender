@@ -104,6 +104,9 @@ def load_data():
     tfidf_matrix = tfidf.fit_transform(books['tags'])
     similarity = cosine_similarity(tfidf_matrix)
     return books, similarity
+
+# Yeh line add karo yahan
+books, similarity = load_data()
     
     # Gemini Setup
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
