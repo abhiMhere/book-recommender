@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+.env
+Books.csv
+Users.csv
+Ratings.csv
+similarity.pkl
+books_data.pkl
+user2idx.pkl
+book2idx.pkl
+dl_model.keras
+.streamlit/secrets.toml
