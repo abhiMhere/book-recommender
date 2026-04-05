@@ -89,58 +89,21 @@ st.markdown("""
 # ─── Load Data ─────────────────────────────────────────────
 @st.cache_resource
 def load_data():
-    import os
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.metrics.pairwise import cosine_similarity
-    import pickle
-
-    if os.path.exists('books_data.pkl') and os.path.exists('similarity.pkl'):
-        books = pickle.load(open('books_data.pkl', 'rb'))
-        similarity = pickle.load(open('similarity.pkl', 'rb'))
-    else:
-        books = pd.read_csv('books_small.csv', low_memory=False)
-        books['Book-Title'] = books['Book-Title'].str.lower()
-        books['Book-Author'] = books['Book-Author'].str.lower()
-        books['Publisher'] = books['Publisher'].str.lower()
-        books['tags'] = (books['Book-Title'] + ' ' +
-                        books['Book-Author'] + ' ' +
-                        books['Publisher'])
-        books = books.reset_index(drop=True)
-        tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
-        tfidf_matrix = tfidf.fit_transform(books['tags'])
-        similarity = cosine_similarity(tfidf_matrix)
-        pickle.dump(books, open('books_data.pkl', 'wb'))
-        pickle.dump(similarity, open('similarity.pkl', 'wb'))
-
+    
+    books = pd.read_csv('books_small.csv', low_memory=False)
+    books['Book-Title'] = books['Book-Title'].str.lower()
+    books['Book-Author'] = books['Book-Author'].str.lower()
+    books['Publisher'] = books['Publisher'].str.lower()
+    books['tags'] = (books['Book-Title'] + ' ' +
+                    books['Book-Author'] + ' ' +
+                    books['Publisher'])
+    books = books.reset_index(drop=True)
+    tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
+    tfidf_matrix = tfidf.fit_transform(books['tags'])
+    similarity = cosine_similarity(tfidf_matrix)
     return books, similarity
-@st.cache_resource
-def load_data():
-    books = pickle.load(open('books_data.pkl', 'rb'))
-    similarity = pickle.load(open('similarity.pkl', 'rb'))
-    return books, similarity
-
-books, similarity = load_data()
-def search_google_books(query):
-    try:
-        url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=10"
-        response = requests.get(url, timeout=5)
-        data = response.json()
-        
-        results = []
-        for item in data.get('items', []):
-            info = item.get('volumeInfo', {})
-            results.append({
-                'title': info.get('title', 'Unknown'),
-                'author': ', '.join(info.get('authors', ['Unknown'])),
-                'image': info.get('imageLinks', {}).get('thumbnail', 
-                         'https://via.placeholder.com/120x180?text=No+Cover'),
-                'year': info.get('publishedDate', 'N/A')[:4],
-                'description': info.get('description', 'No description available.')[:200] + '...',
-                'score': 'Google Books'
-            })
-        return results
-    except:
-        return []
     
     # Gemini Setup
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
